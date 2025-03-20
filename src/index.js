@@ -1,6 +1,7 @@
 import express from 'express'
 import helmet from 'helmet'
-import { corsMiddleware } from './middleware/cors.js'
+import { corsMiddleware } from './middleware/index.js'
+import usersRouter from './routes/users/index.js'
 import logger from './util/logger.js'
 
 const app = express()
@@ -34,6 +35,8 @@ app.use(
     },
   })
 )
+
+app.use('/users', usersRouter)
 
 // healthCheck for AWS ELB
 app.get('/healthCheck', function (req, res) {

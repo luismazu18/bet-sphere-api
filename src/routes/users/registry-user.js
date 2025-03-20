@@ -1,0 +1,25 @@
+import { registryUser } from '../../db/users.js'
+import { isEmpty, isUserActive } from '../../util/index.js'
+import logger from '../../util/logger.js'
+
+export default async (req, res) => {
+  const libName = '[registry-user]'
+
+  const user = req.user ?? {}
+  if (!isUserActive(user)) {
+    const error = 'El usuario no esta activo'
+    logger.error(`${libName} ${error}`)
+    return res.status(400).json({ success: false, error })
+  }
+
+  const data = req.body ?? {}
+  if (isEmpty(data)) {
+    const error = 'No se proporciono informacion para crear usuario'
+    logger.error(`${libName} ${error}`)
+    return res.status(400).json({ success: false, error })
+  }
+
+  const outPut = await registryUser({ user, data })
+
+  res.status(outPut.success ? 200 : 400).json(outPut)
+}
