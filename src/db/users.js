@@ -55,12 +55,13 @@ export const registryUser = async ({ user, data } = {}) => {
         password,
         documentType: data?.documentType,
         documentNumber: data?.documentNumber,
+        betBalance: data?.betBalance,
         phone: data?.phone,
         photo: data?.photo,
         byUser: user?.id,
         createdAt: new Date(),
         updatedAt: new Date(),
-        enabled: true,
+        isEnabled: data?.isEnabled,
       },
     })
 
@@ -116,7 +117,7 @@ export const getAuthUser = async (email, password) => {
       return { success: false, error }
     }
 
-    return { success: true, data: { id: user.id, enabled: user.enabled } }
+    return { success: true, data: { id: user.id, isEnabled: user.isEnabled } }
   } catch (err) {
     const error = 'Ocurrio un error al obtener el usuario'
     logger.error(`${fName} ${error}`)
@@ -160,10 +161,11 @@ export const updateUser = async ({ id, data = {} }) => {
         password: data?.password,
         documentType: data?.documentType,
         documentNumber: data?.documentNumber,
+        betBalance: data?.betBalance,
         phone: data?.phone,
         photo: data?.photo,
         updatedAt: new Date(),
-        enabled: true,
+        isEnabled: true,
       },
     })
 
@@ -178,14 +180,14 @@ export const updateUser = async ({ id, data = {} }) => {
 
 export const getUser = async ({
   id,
-  enabled = true,
+  isEnabled = true,
   querySearch,
   page = 1,
   rowsPerPage = 10,
 } = {}) => {
   const fName = `${libName} [getUser]`
 
-  let where = { enabled }
+  let where = { isEnabled }
   if (isRowId(id)) where.id = id
 
   if (!isEmpty(querySearch)) {

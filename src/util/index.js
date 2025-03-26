@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { isNull } from 'lodash'
 import { DateTime } from 'luxon'
 /*
  * Fuction to check if the *arg* parameter is empty no matter what king of type
@@ -148,4 +149,13 @@ export const formatDateToLuxon = (date) => {
   } catch (err) {
     console.error(err)
   }
+}
+
+export const hasAttributes = (arg, keys, { strictMode = true } = {}) => {
+  if (typeof arg !== 'object' || isEmpty(arg) || !Array.isArray(keys) || isEmpty(keys)) {
+    return false
+  }
+  return keys.every((key) => {
+    return strictMode ? !isEmpty(arg[key]) : !isNull(arg[key])
+  })
 }

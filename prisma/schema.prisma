@@ -14,19 +14,51 @@ datasource db {
 }
 
 model Users {
-  id             String   @id @db.Uuid
-  email          String   @unique
-  password       String
-  name           String
-  lastName       String   @map("last_name")
-  documentType   String   @map("document_type")
-  documentNumber String   @map("document_number")
-  phone          String
-  photo          String
-  byUser         String   @map("by_user") @db.Uuid
-  enabled        Boolean  @default(true)
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id               String             @id @db.Uuid
+  email            String             @unique
+  password         String
+  name             String
+  lastName         String             @map("last_name")
+  documentType     String             @map("document_type")
+  betBalance       Float              @default(0) @map("bet_balance")
+  documentNumber   String             @map("document_number")
+  idUserSubs       String?            @map("id_user_subs") @db.Uuid
+  phone            String?
+  photo            String?
+  byUser           String             @map("by_user") @db.Uuid
+  isEnabled        Boolean            @default(true)
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  UserSuscriptions UserSuscriptions[]
 
   @@map("users")
+}
+
+model SuscriptionTypes {
+  id               String             @id @db.Uuid
+  name             String
+  keyName          String             @map("key_name")
+  description      String
+  price            Float
+  isEnabled        Boolean            @default(true)
+  byUser           String             @map("by_user") @db.Uuid
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  UserSuscriptions UserSuscriptions[]
+
+  @@map("suscription_types")
+}
+
+model UserSuscriptions {
+  id               String           @id @db.Uuid
+  idUser           String           @map("id_user") @db.Uuid
+  idSuscription    String           @map("id_suscription") @db.Uuid
+  isEnabled        Boolean          @default(true)
+  byUser           String           @map("by_user") @db.Uuid
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+  SuscriptionTypes SuscriptionTypes @relation(fields: [idSuscription], references: [id])
+  Users            Users            @relation(fields: [idUser], references: [id])
+
+  @@map("user_suscriptions")
 }
