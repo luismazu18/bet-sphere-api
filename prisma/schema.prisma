@@ -30,8 +30,22 @@ model Users {
   createdAt        DateTime           @default(now()) @map("created_at")
   updatedAt        DateTime           @updatedAt @map("updated_at")
   UserSuscriptions UserSuscriptions[]
+  HistoryBalance   HistoryBalance[]
 
   @@map("users")
+}
+
+model HistoryBalance {
+  id        String             @id @db.Uuid
+  idUser    String             @map("id_user") @db.Uuid
+  amount    Float
+  type      HistoryBalanceType
+  byUser    String             @map("by_user") @db.Uuid
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+  Users     Users              @relation(fields: [idUser], references: [id])
+
+  @@map("history_balance")
 }
 
 model SuscriptionTypes {
@@ -61,4 +75,9 @@ model UserSuscriptions {
   Users            Users            @relation(fields: [idUser], references: [id])
 
   @@map("user_suscriptions")
+}
+
+enum HistoryBalanceType {
+  DEPOSIT
+  WITHDRAW
 }
