@@ -12,6 +12,7 @@ import {
 import logger from '../util/logger.js'
 import { prisma } from './index.js'
 import { subscriptionTypesForCriteria } from './subscriptionTypes.js'
+import { upsertUserSubscriptions } from './userSubscriptions.js'
 
 const libName = '[db/users]'
 export const registryUser = async ({ user, data } = {}) => {
@@ -95,11 +96,42 @@ export const registryUser = async ({ user, data } = {}) => {
         return { success: false, error }
       }
 
+      // Se crea la suscripcion del usuario
+      const respUserSubscription = await upsertUserSubscriptions({
+        user,
+        data: {
+          idUser: newUser.id,
+          idSubscription: subscription?.id,
+          isEnabled: true,
+        },
+      })
+      if (!respUserSubscription?.success) {
+        const error = `Ocurrio un error al crear la suscripcion del usuario`
+        logger.error(`${fName} ${error}`)
+        // Se procede a eliminar el usuario creado
+        const respDelete = await deleteUser({ id: newUser.id })
+        if (!respDelete?.success) {
+          logger.error(`${fName} Ocurrio un error al eliminar el usuario creado`)
+        }
+        return { success: false, error }
+      }
+      const [userSubscription] = respUserSubscription.data ?? []
+      if (!isRowId(userSubscription?.id)) {
+        const error = `No se encontro la suscripcion del usuario`
+        logger.error(`${fName} ${error}`)
+        // Se procede a eliminar el usuario creado
+        const respDelete = await deleteUser({ id: newUser.id })
+        if (!respDelete?.success) {
+          logger.error(`${fName} Ocurrio un error al eliminar el usuario creado`)
+        }
+        return { success: false, error }
+      }
+
       // Se actualiza el id de la suscripcion en el usuario
       const respUpdate = await updateUser({
         id: newUser.id,
         data: {
-          idSubscription: subscription?.id,
+          idUserSubs: userSubscription?.id,
         },
       })
 
