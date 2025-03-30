@@ -11,6 +11,7 @@ import {
 } from '../util/index.js'
 import logger from '../util/logger.js'
 import { prisma } from './index.js'
+import { subscriptionTypesForCriteria } from './subscriptionTypes.js'
 
 const libName = '[db/users]'
 export const registryUser = async ({ user, data } = {}) => {
@@ -66,6 +67,53 @@ export const registryUser = async ({ user, data } = {}) => {
     })
 
     newUser = deleteInfoUser(newUser)
+
+    // Se crea relacion de usuario con suscripcion
+    if (isEmpty(data?.idSubscription)) {
+      // Se obtiene el id del tipo de suscripcion basica
+      const getSubscription = await subscriptionTypesForCriteria({ keyName: 'BASIC' })
+      if (!getSubscription?.success) {
+        const error = `Ocurrio un error al obtener el tipo de suscripcion basica`
+        logger.error(`${fName} ${error}`)
+        // Se procede a eliminar el usuario creado
+        const respDelete = await deleteUser({ id: newUser.id })
+        if (!respDelete?.success) {
+          logger.error(`${fName} Ocurrio un error al eliminar el usuario creado`)
+        }
+        return { success: false, error }
+      }
+
+      const [subscription] = getSubscription.data ?? []
+      if (!isRowId(subscription?.id)) {
+        const error = `No se encontro el tipo de suscripcion basica`
+        logger.error(`${fName} ${error}`)
+        // Se procede a eliminar el usuario creado
+        const respDelete = await deleteUser({ id: newUser.id })
+        if (!respDelete?.success) {
+          logger.error(`${fName} Ocurrio un error al eliminar el usuario creado`)
+        }
+        return { success: false, error }
+      }
+
+      // Se actualiza el id de la suscripcion en el usuario
+      const respUpdate = await updateUser({
+        id: newUser.id,
+        data: {
+          idSubscription: subscription?.id,
+        },
+      })
+
+      if (!respUpdate?.success) {
+        const error = `Ocurrio un error al actualizar el usuario con la suscripcion basica`
+        logger.error(`${fName} ${error}`)
+        // Se procede a eliminar el usuario creado
+        const respDelete = await deleteUser({ id: newUser.id })
+        if (!respDelete?.success) {
+          logger.error(`${fName} Ocurrio un error al eliminar el usuario creado`)
+        }
+        return { success: false, error }
+      }
+    }
 
     return { success: true, data: newUser }
   } catch (err) {
@@ -223,6 +271,28 @@ export const getUser = async ({
     return { success: true, data: users, total }
   } catch (err) {
     const error = 'Ocurrio un error al obtener el usuario'
+    logger.error(`${fName} ${error}`)
+    console.error(err)
+    return { success: false, error }
+  }
+}
+
+// Funcion para eliminar usuario cuando no se pudo realizar el registro correctamente
+const deleteUser = async ({ id }) => {
+  const fName = `${libName} [deleteUser]`
+
+  if (!isRowId(id)) {
+    const error = `No se proporciono un id valido para eliminar usuario: ${id}`
+    logger.error(`${fName} ${error}`)
+    return { success: false, error }
+  }
+
+  try {
+    logger.info(`${fName} Eliminando usuario...`)
+    await prisma.users.delete({ where: { id } })
+    return { success: true }
+  } catch (err) {
+    const error = 'Ocurrio un error al eliminar el usuario'
     logger.error(`${fName} ${error}`)
     console.error(err)
     return { success: false, error }

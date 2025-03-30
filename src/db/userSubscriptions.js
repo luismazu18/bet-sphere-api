@@ -4,14 +4,14 @@ import logger from '../util/logger.js'
 import { prisma } from './index.js'
 
 const libName = '[userSuscriptions]'
-export const userSuscripcionsForCriteria = async ({
+export const userSubscripcionsForCriteria = async ({
   user,
   id,
   idUser,
-  idSuscription,
+  idSubscription,
   isEnabled = false,
 } = {}) => {
-  const fName = `${libName} [userSuscripcionsForCriteria]`
+  const fName = `${libName} [userSubscripcionsForCriteria]`
 
   if (!isUserActive(user)) {
     const error = 'El usuario no esta activo'
@@ -44,15 +44,15 @@ export const userSuscripcionsForCriteria = async ({
     where.idUser = idUser
   }
 
-  if (!isEmpty(idSuscription)) {
-    if (!isRowId(idSuscription)) {
-      const error = 'El idSuscription no es valido '
+  if (!isEmpty(idSubscription)) {
+    if (!isRowId(idSubscription)) {
+      const error = 'El idSubscription no es valido '
       logger.error(`${fName} ${error}`)
       return { success: false, error }
     }
 
-    logData += `idSuscription : '${idSuscription}' `
-    where.idSuscription = idSuscription
+    logData += `idSubscription : '${idSubscription}' `
+    where.idSubscription = idSubscription
   }
 
   if (isEmpty(where)) {
@@ -85,8 +85,8 @@ export const userSuscripcionsForCriteria = async ({
  * @param {*} data
  * @returns
  */
-export const upsertUserSuscriptions = async ({ user, data } = {}) => {
-  const fName = `${libName}[upsertUserSuscriptions]`
+export const upsertUserSubscriptions = async ({ user, data } = {}) => {
+  const fName = `${libName}[upsertUserSubscriptions]`
 
   if (!isUserActive(user)) {
     const error = `El usuario ${user?.id} no esta activo`
@@ -107,7 +107,7 @@ export const upsertUserSuscriptions = async ({ user, data } = {}) => {
     data.id = uuidv4()
   } else {
     // Verifica si ya existe una relacion de suscripcion con el mismo id
-    const old = await userSuscripcionsForCriteria({ id: data.id })
+    const old = await userSubscripcionsForCriteria({ id: data.id })
     if (!old?.success) {
       const error = `El tipo de suscripcion con id ${data.id} no existe`
       logger.error(`${fName} ${error}`)
@@ -121,7 +121,7 @@ export const upsertUserSuscriptions = async ({ user, data } = {}) => {
   let result = {}
   try {
     if (!isRowId(oldData?.id)) {
-      if (!hasAttributes(data, ['idUser', 'idSuscription'])) {
+      if (!hasAttributes(data, ['idUser', 'idSubscription'])) {
         const error =
           'No se proporcionaron los datos necesarios para crear relacion de suscripcion con usuario'
         logger.error(`${fName} ${error}`)
@@ -129,11 +129,11 @@ export const upsertUserSuscriptions = async ({ user, data } = {}) => {
       }
 
       logger.info(`${fName} Creando relacion de suscripcion con usuario con id: ${data.id} `)
-      result = await prisma.userSuscriptions.create({
+      result = await prisma.userSubscriptions.create({
         data: {
           id: data.id,
           idUser: data?.idUser,
-          idSuscription: data?.idSuscription,
+          idSubscription: data?.idSubscription,
           isEnabled: data?.isEnabled,
           byUser: user?.id,
           createdAt: new Date(),
@@ -149,13 +149,13 @@ export const upsertUserSuscriptions = async ({ user, data } = {}) => {
       })
 
       logger.info(`${fName} Actualizando relacion de suscripcion con usuario con id: ${data.id}`)
-      result = await prisma.medmagFileTypes.update({
+      result = await prisma.userSubscriptions.update({
         where: {
           id: data.id,
         },
         data: {
           idUser: oldData?.idUser,
-          idSuscription: oldData?.idSuscription,
+          idSubscription: oldData?.idSubscription,
           isEnabled: oldData?.isEnabled,
           updatedAt: new Date(),
           byUser: user?.id,

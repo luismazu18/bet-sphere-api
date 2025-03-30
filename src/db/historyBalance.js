@@ -141,16 +141,14 @@ export const upsertHistoryBalance = async ({ user, data } = {}) => {
       })
 
       logger.info(`${fName} Actualizando el historial de balance con id: ${data.id}`)
-      result = await prisma.medmagFileTypes.update({
+      result = await prisma.historyBalance.update({
         where: {
           id: data.id,
         },
         data: {
-          name: oldData?.name,
-          keyName: oldData?.keyName,
-          price: oldData?.price,
-          description: oldData?.description,
-          isEnabled: oldData?.isEnabled,
+          idUser: oldData.idUser,
+          amount: oldData.amount,
+          type: oldData.type,
           updatedAt: new Date(),
           byUser: user?.id,
         },

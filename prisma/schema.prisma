@@ -14,22 +14,22 @@ datasource db {
 }
 
 model Users {
-  id               String             @id @db.Uuid
-  email            String             @unique
+  id               String              @id @db.Uuid
+  email            String              @unique
   password         String
   name             String
-  lastName         String             @map("last_name")
-  documentType     String             @map("document_type")
-  betBalance       Float              @default(0) @map("bet_balance")
-  documentNumber   String             @map("document_number")
-  idUserSubs       String?            @map("id_user_subs") @db.Uuid
+  lastName         String              @map("last_name")
+  documentType     String              @map("document_type")
+  betBalance       Float               @default(0) @map("bet_balance")
+  documentNumber   String              @map("document_number")
+  idUserSubs       String?             @map("id_user_subs") @db.Uuid
   phone            String?
   photo            String?
-  byUser           String             @map("by_user") @db.Uuid
-  isEnabled        Boolean            @default(true)
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @updatedAt @map("updated_at")
-  UserSuscriptions UserSuscriptions[]
+  byUser           String              @map("by_user") @db.Uuid
+  isEnabled        Boolean             @default(true)
+  createdAt        DateTime            @default(now()) @map("created_at")
+  updatedAt        DateTime            @updatedAt @map("updated_at")
+  UserSuscriptions UserSubscriptions[]
   HistoryBalance   HistoryBalance[]
 
   @@map("users")
@@ -48,31 +48,31 @@ model HistoryBalance {
   @@map("history_balance")
 }
 
-model SuscriptionTypes {
-  id               String             @id @db.Uuid
+model SubscriptionTypes {
+  id               String              @id @db.Uuid
   name             String
-  keyName          String             @map("key_name")
+  keyName          String              @map("key_name")
   description      String
   price            Float
-  isEnabled        Boolean            @default(true)
-  byUser           String             @map("by_user") @db.Uuid
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @updatedAt @map("updated_at")
-  UserSuscriptions UserSuscriptions[]
+  isEnabled        Boolean             @default(true)
+  byUser           String              @map("by_user") @db.Uuid
+  createdAt        DateTime            @default(now()) @map("created_at")
+  updatedAt        DateTime            @updatedAt @map("updated_at")
+  UserSuscriptions UserSubscriptions[]
 
-  @@map("suscription_types")
+  @@map("subscription_types")
 }
 
-model UserSuscriptions {
-  id               String           @id @db.Uuid
-  idUser           String           @map("id_user") @db.Uuid
-  idSuscription    String           @map("id_suscription") @db.Uuid
-  isEnabled        Boolean          @default(true)
-  byUser           String           @map("by_user") @db.Uuid
-  createdAt        DateTime         @default(now()) @map("created_at")
-  updatedAt        DateTime         @updatedAt @map("updated_at")
-  SuscriptionTypes SuscriptionTypes @relation(fields: [idSuscription], references: [id])
-  Users            Users            @relation(fields: [idUser], references: [id])
+model UserSubscriptions {
+  id               String            @id @db.Uuid
+  idUser           String            @map("id_user") @db.Uuid
+  idSubscription   String            @map("id_suscription") @db.Uuid
+  isEnabled        Boolean           @default(true)
+  byUser           String            @map("by_user") @db.Uuid
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  SuscriptionTypes SubscriptionTypes @relation(fields: [idSubscription], references: [id])
+  Users            Users             @relation(fields: [idUser], references: [id])
 
   @@map("user_suscriptions")
 }

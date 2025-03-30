@@ -4,11 +4,11 @@ import logger from '../util/logger.js'
 import { prisma } from './index.js'
 
 const libName = '[suscriptionTypes]'
-export const suscriptionTypesForCriteria = async (
+export const subscriptionTypesForCriteria = async (
   { user, id, keyName, name, isEnabled = false } = {},
   { includeConfig = false } = {}
 ) => {
-  const fName = `${libName} [suscriptionTypesForCriteria]`
+  const fName = `${libName} [subscriptionTypesForCriteria]`
 
   if (!isUserActive(user)) {
     const error = 'El usuario no esta activo'
@@ -44,14 +44,14 @@ export const suscriptionTypesForCriteria = async (
 
   try {
     logger.info(`${fName} ${logData}`)
-    const resp = await prisma.suscriptionTypes.findMany({
+    const resp = await prisma.subscriptionTypes.findMany({
       where,
       orderBy: { createdAt: 'desc' },
     })
 
     return { success: true, data: resp }
   } catch (err) {
-    const error = 'Error al filtrar los tipos de suscripcion'
+    const error = 'Error al filtrar los tipos de subscripcion'
     logger.error(`${fName} ${error}`)
     console.error(err)
     return { success: false, error }
@@ -59,13 +59,13 @@ export const suscriptionTypesForCriteria = async (
 }
 
 /**
- * Funcion para crear o actualizar un tipo de suscripcion
+ * Funcion para crear o actualizar un tipo de subscripcion
  * @param {*} user
  * @param {*} data
  * @returns
  */
-export const upsertSuscriptionTypes = async ({ user, data } = {}) => {
-  const fName = `${libName}[upsertSuscriptionTypes]`
+export const upsertSubscriptionTypes = async ({ user, data } = {}) => {
+  const fName = `${libName}[upsertSubscriptionTypes]`
 
   if (!isUserActive(user)) {
     const error = `El usuario ${user?.id} no esta activo`
@@ -74,7 +74,7 @@ export const upsertSuscriptionTypes = async ({ user, data } = {}) => {
   }
 
   if (isEmpty(data)) {
-    const error = 'No se proporciono informacion para crear/actualizar tipo de suscripcion'
+    const error = 'No se proporciono informacion para crear/actualizar tipo de subscripcion'
     logger.error(`${fName} ${error}`)
     return { success: false, error }
   }
@@ -84,15 +84,15 @@ export const upsertSuscriptionTypes = async ({ user, data } = {}) => {
   if (!isRowId(data.id)) {
     data.id = uuidv4()
   } else {
-    // Verifica si ya existe un tipo de suscripcion con el mismo id
-    const old = await suscriptionTypesForCriteria({ id: data.id })
+    // Verifica si ya existe un tipo de subscripcion con el mismo id
+    const old = await subscriptionTypesForCriteria({ id: data.id })
     if (!old?.success) {
       const error = `El tipo de suscripcion con id ${data.id} no existe`
       logger.error(`${fName} ${error}`)
       return { success: false, error }
     }
 
-    // Obtienen los datos de tipos de suscripcion
+    // Obtienen los datos de tipos de subscripcion
     ;[oldData] = old.data ?? []
   }
 
@@ -100,13 +100,13 @@ export const upsertSuscriptionTypes = async ({ user, data } = {}) => {
   try {
     if (!isRowId(oldData?.id)) {
       if (!hasAttributes(data, ['keyName', 'name', 'description', 'price'])) {
-        const error = 'No se proporcionaron los datos necesarios para crear el tipo de suscripcion'
+        const error = 'No se proporcionaron los datos necesarios para crear el tipo de subscripcion'
         logger.error(`${fName} ${error}`)
         return { success: false, error }
       }
 
-      logger.info(`${fName} Creando tipo de suscripcion con id: ${data.id} `)
-      result = await prisma.suscriptionTypes.create({
+      logger.info(`${fName} Creando tipo de subscripcion con id: ${data.id} `)
+      result = await prisma.subscriptionTypes.create({
         data: {
           id: data.id,
           name: data?.name,
@@ -120,14 +120,14 @@ export const upsertSuscriptionTypes = async ({ user, data } = {}) => {
         },
       })
     } else {
-      // actualiza los datos del tipo de suscripcion, contenidos en *data*
+      // actualiza los datos del tipo de subscripcion, contenidos en *data*
       Object.keys(data).forEach((key) => {
         if (!['id'].includes(key)) {
           oldData[key] = data[key]
         }
       })
 
-      logger.info(`${fName} Actualizando tipo de suscripcion con id: ${data.id}`)
+      logger.info(`${fName} Actualizando tipo de subscripcion con id: ${data.id}`)
       result = await prisma.medmagFileTypes.update({
         where: {
           id: data.id,
@@ -144,7 +144,7 @@ export const upsertSuscriptionTypes = async ({ user, data } = {}) => {
       })
     }
   } catch (err) {
-    const error = `Error al crear/actualizar el tipo de suscripcion`
+    const error = `Error al crear/actualizar el tipo de subscripcion`
     logger.error(`${fName} ${error}`)
     console.error(err)
     return { success: false, error, exception: err }
