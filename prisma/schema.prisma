@@ -55,6 +55,7 @@ model SubscriptionTypes {
   keyName          String              @map("key_name")
   description      String
   price            Float
+  configuration    Json                @default("{}") @db.Json
   isEnabled        Boolean             @default(true)
   byUser           String              @map("by_user") @db.Uuid
   createdAt        DateTime            @default(now()) @map("created_at")
@@ -103,7 +104,7 @@ model House {
   id            String      @id @db.Uuid
   name          String
   keyName       String      @map("key_name")
-  configuration Json        @default("{}") @map("configuration") @db.Json
+  configuration Json        @default("{}") @db.Json
   idBettingType String      @map("id_betting_type") @db.Uuid
   description   String
   isEnabled     Boolean     @default(true)
