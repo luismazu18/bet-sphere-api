@@ -31,6 +31,7 @@ model Users {
   updatedAt        DateTime            @updatedAt @map("updated_at")
   UserSuscriptions UserSubscriptions[]
   HistoryBalance   HistoryBalance[]
+  UserHouse        UserHouse[]
 
   @@map("users")
 }
@@ -53,7 +54,7 @@ model SubscriptionTypes {
   name             String
   keyName          String              @map("key_name")
   description      String
-  price            Float              
+  price            Float
   isEnabled        Boolean             @default(true)
   byUser           String              @map("by_user") @db.Uuid
   createdAt        DateTime            @default(now()) @map("created_at")
@@ -68,9 +69,9 @@ model UserSubscriptions {
   idUser           String            @map("id_user") @db.Uuid
   idSubscription   String            @map("id_suscription") @db.Uuid
   startDate        DateTime          @map("start_date")
-  endDate          DateTime?          @map("end_date")
+  endDate          DateTime?         @map("end_date")
   isActive         Boolean           @default(true) @map("is_active")
-  paymentInfo      Json              @map("payment_info") @db.Json @default("{}")
+  paymentInfo      Json              @default("{}") @map("payment_info") @db.Json
   isEnabled        Boolean           @default(true)
   byUser           String            @map("by_user") @db.Uuid
   createdAt        DateTime          @default(now()) @map("created_at")
@@ -78,15 +79,67 @@ model UserSubscriptions {
   SuscriptionTypes SubscriptionTypes @relation(fields: [idSubscription], references: [id])
   Users            Users             @relation(fields: [idUser], references: [id])
 
-  @@map("user_suscriptions")
   @@index([idUser])
   @@index([idSubscription])
   @@index([isEnabled])
+  @@map("user_suscriptions")
 }
 
+model BettingType {
+  id          String   @id @db.Uuid
+  name        String
+  keyName     String   @map("key_name")
+  description String
+  isEnabled   Boolean  @default(true)
+  byUser      String   @map("by_user") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  House       House[]
 
+  @@map("betting_type")
+}
+
+model House {
+  id            String      @id @db.Uuid
+  name          String
+  keyName       String      @map("key_name")
+  configuration Json        @default("{}") @map("configuration") @db.Json
+  idBettingType String      @map("id_betting_type") @db.Uuid
+  description   String
+  isEnabled     Boolean     @default(true)
+  byUser        String      @map("by_user") @db.Uuid
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  BettingType   BettingType @relation(fields: [idBettingType], references: [id])
+  UserHouse     UserHouse[]
+
+  @@map("house")
+}
+
+model UserHouse {
+  id        String        @id @db.Uuid
+  idUser    String        @map("id_user") @db.Uuid
+  idHouse   String        @map("id_house") @db.Uuid
+  type      UserHouseType
+  isEnabled Boolean       @default(true)
+  byUser    String        @map("by_user") @db.Uuid
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+  House     House         @relation(fields: [idHouse], references: [id])
+  Users     Users         @relation(fields: [idUser], references: [id])
+
+  @@index([idUser])
+  @@index([idHouse])
+  @@index([isEnabled])
+  @@map("user_house")
+}
 
 enum HistoryBalanceType {
   DEPOSIT
   WITHDRAW
+}
+
+enum UserHouseType {
+  ADMIN
+  USER
 }
