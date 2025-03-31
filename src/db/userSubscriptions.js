@@ -121,7 +121,7 @@ export const upsertUserSubscriptions = async ({ user, data } = {}) => {
   let result = {}
   try {
     if (!isRowId(oldData?.id)) {
-      if (!hasAttributes(data, ['idUser', 'idSubscription'])) {
+      if (!hasAttributes(data, ['idUser', 'idSubscription', 'startDate'])) {
         const error =
           'No se proporcionaron los datos necesarios para crear relacion de suscripcion con usuario'
         logger.error(`${fName} ${error}`)
@@ -134,6 +134,10 @@ export const upsertUserSubscriptions = async ({ user, data } = {}) => {
           id: data.id,
           idUser: data?.idUser,
           idSubscription: data?.idSubscription,
+          startDate: data?.startDate,
+          endDate: data?.endDate,
+          isActive: data?.isActive,
+          paymentInfo: data?.paymentInfo,
           isEnabled: data?.isEnabled,
           byUser: user?.id,
           createdAt: new Date(),
@@ -143,7 +147,7 @@ export const upsertUserSubscriptions = async ({ user, data } = {}) => {
     } else {
       // actualiza los datos de la relacion de suscripcion usuarios, contenidos en *data*
       Object.keys(data).forEach((key) => {
-        if (!['id'].includes(key)) {
+        if (!['id', 'startDate'].includes(key)) {
           oldData[key] = data[key]
         }
       })
@@ -156,6 +160,9 @@ export const upsertUserSubscriptions = async ({ user, data } = {}) => {
         data: {
           idUser: oldData?.idUser,
           idSubscription: oldData?.idSubscription,
+          isActive: oldData?.isActive,
+          paymentInfo: oldData?.paymentInfo,
+          endDate: oldData?.endDate,
           isEnabled: oldData?.isEnabled,
           updatedAt: new Date(),
           byUser: user?.id,

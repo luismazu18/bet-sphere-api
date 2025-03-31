@@ -53,7 +53,7 @@ model SubscriptionTypes {
   name             String
   keyName          String              @map("key_name")
   description      String
-  price            Float
+  price            Float              
   isEnabled        Boolean             @default(true)
   byUser           String              @map("by_user") @db.Uuid
   createdAt        DateTime            @default(now()) @map("created_at")
@@ -67,6 +67,10 @@ model UserSubscriptions {
   id               String            @id @db.Uuid
   idUser           String            @map("id_user") @db.Uuid
   idSubscription   String            @map("id_suscription") @db.Uuid
+  startDate        DateTime          @map("start_date")
+  endDate          DateTime?          @map("end_date")
+  isActive         Boolean           @default(true) @map("is_active")
+  paymentInfo      Json              @map("payment_info") @db.Json @default("{}")
   isEnabled        Boolean           @default(true)
   byUser           String            @map("by_user") @db.Uuid
   createdAt        DateTime          @default(now()) @map("created_at")
@@ -75,7 +79,12 @@ model UserSubscriptions {
   Users            Users             @relation(fields: [idUser], references: [id])
 
   @@map("user_suscriptions")
+  @@index([idUser])
+  @@index([idSubscription])
+  @@index([isEnabled])
 }
+
+
 
 enum HistoryBalanceType {
   DEPOSIT
